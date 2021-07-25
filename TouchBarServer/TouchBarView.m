@@ -19,11 +19,15 @@ extern BOOL DFRFoundationPostEventWithMouseActivity(NSEventType type, NSPoint p)
 
 - (instancetype) init {
     self = [super init];
+    
+
+    
     if(self != nil) {
         _displayView = [NSView new];
         _displayView.frame = NSMakeRect(5, 5, 1085, 30);
         _displayView.wantsLayer = YES;
         [self addSubview:_displayView];
+        
         
         _stream = SLSDFRDisplayStreamCreate(NULL, dispatch_get_main_queue(), ^(CGDisplayStreamFrameStatus status,
                                                                                uint64_t displayTime,
@@ -33,7 +37,7 @@ extern BOOL DFRFoundationPostEventWithMouseActivity(NSEventType type, NSPoint p)
             _displayView.layer.contents = (__bridge id)(frameSurface);
         });
         
-        DFRSetStatus(2);
+        
         CGDisplayStreamStart(_stream);
     }
     

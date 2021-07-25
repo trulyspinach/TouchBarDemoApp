@@ -23,8 +23,11 @@
 @import Carbon;
 
 extern CGDisplayStreamRef SLSDFRDisplayStreamCreate(void *, dispatch_queue_t, CGDisplayStreamFrameAvailableHandler);
+extern int DFRGetStatus(void);
 extern BOOL DFRSetStatus(int);
 extern BOOL DFRFoundationPostEventWithMouseActivity(NSEventType type, NSPoint p);
+
+static int32_t init_DFRStatus = -1;
 
 static NSString * const kUserDefaultsKeyScreenEnable    = @"ScreenEnable";
 static NSString * const kUserDefaultsKeyScreenToggleKey = @"ScreenToggleKey";
@@ -65,6 +68,10 @@ static NSString * const kUserDefaultsKeyRemoteAlign     = @"RemoteAlign";
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    
+    init_DFRStatus = DFRGetStatus();
+    if((init_DFRStatus & 0x01) == 0) DFRSetStatus(2);
+    
     if (!NSClassFromString(@"DFRElement")) {
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"Error: could not detect Touch Bar support"];
@@ -75,6 +82,8 @@ static NSString * const kUserDefaultsKeyRemoteAlign     = @"RemoteAlign";
         if(response == NSAlertSecondButtonReturn) {
             [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://support.apple.com/kb/dl1897"]];
         }
+        
+        
         
         [NSApp terminate:nil];
         return;
@@ -148,6 +157,7 @@ static NSString * const kUserDefaultsKeyRemoteAlign     = @"RemoteAlign";
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     [[NSStatusBar systemStatusBar] removeStatusItem:_statusItem];
+    DFRSetStatus(init_DFRStatus);
 }
 
 - (void)setScreenEnable:(BOOL)screenEnable {
